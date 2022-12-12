@@ -1,0 +1,181 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#include ""res\\time.rc2""  // ???§?§? Microsoft Visual C++ ???ì?¨¨??¨???§?§?-|??ì?????ì?¨|??¨?o???\r\n"
+    "#include ""afxres.rc""     // ???ì?¨¨??¨?o???ì?¨|????ì?¨|??¨?|?t\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "res\\flo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TIME_DIALOG DIALOGEX 0, 0, 222, 114
+STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_STATICEDGE | WS_EX_APPWINDOW
+CAPTION "时间转换工具"
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_INPUT,9,29,165,26,ES_AUTOHSCROLL
+    PUSHBUTTON      "置顶",IDC_TOP,175,29,40,14
+    EDITTEXT        IDC_EDIT_OUTPUT,9,81,147,19,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
+    LTEXT           "时间戳：",IDC_STATIC,9,12,33,8
+    LTEXT           "格式化时间：",IDC_STATIC,8,66,49,8
+    PUSHBUTTON      "复制",IDC_COPYINPUT,137,7,32,14
+    PUSHBUTTON      "复制",IDC_COPYOUTPUT,135,63,33,14
+    EDITTEXT        IDC_EDIT_COPYINPUT_INFO,175,9,23,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE | NOT WS_BORDER
+    PUSHBUTTON      "粘贴",IDC_PASTE_INPUT,52,7,39,14
+    PUSHBUTTON      "粘贴",IDC_PASTE_OUTPUT,53,63,40,14
+    EDITTEXT        IDC_EDIT_COPYOUTPUT_INFO,173,65,23,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE | NOT WS_BORDER
+    PUSHBUTTON      "清空",IDC_BUTTON_CLEAN_INPUT,100,7,32,14
+    PUSHBUTTON      "清空",IDC_BUTTON_CLEAN_OUTPUT,100,63,30,14
+    EDITTEXT        IDC_EDIT_SECOND_INFO,176,47,16,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    PUSHBUTTON      "截取",IDC_CUT,191,45,24,14
+    CONTROL         "UTC",IDC_RADIO_UTC,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,159,86,22,10
+    CONTROL         "CST",IDC_RADIO_CST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,189,86,26,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080403a8"
+        BEGIN
+            VALUE "CompanyName", "Sunell"
+            VALUE "FileDescription", "时间转换工具"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "时间转换.exe"
+            VALUE "LegalCopyright", "Sunell"
+            VALUE "OriginalFilename", "时间转换.exe"
+            VALUE "ProductName", "Sunell"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 936
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_TIME_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 中文(中华人民共和国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE 4, 2
+#pragma code_page(936)
+#include "res\time.rc2"  // ??¨¨? Microsoft Visual C++ ??§?è??ì?¨¨?-|?§????§?é??ìo???
+#include "afxres.rc"     // ??§?è??ìo??§?é???§?é??ì|?t
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
