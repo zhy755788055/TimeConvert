@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ÷–Œƒ(÷–ª™»À√Òπ≤∫Õπ˙) resources
+// ‰∏≠Êñá(‰∏≠Âçé‰∫∫Ê∞ëÂÖ±ÂíåÂõΩ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
@@ -48,8 +48,8 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
     "#pragma code_page(936)\r\n"
-    "#include ""res\\time.rc2""  // ???°Ï?°Ï? Microsoft Visual C++ ???®¨?°ß°ß??°ß???°Ï?°Ï?-|??®¨?????®¨?°ß|??°ß?o???\r\n"
-    "#include ""afxres.rc""     // ???®¨?°ß°ß??°ß?o???®¨?°ß|????®¨?°ß|??°ß?|?t\r\n"
+    "#include ""res\\time.rc2""  // ???¬ß?¬ß? Microsoft Visual C++ ???√¨?¬®¬®??¬®???¬ß?¬ß?-|??√¨?????√¨?¬®|??¬®?o???\r\n"
+    "#include ""afxres.rc""     // ???√¨?¬®¬®??¬®?o???√¨?¬®|????√¨?¬®|??¬®?|?t\r\n"
     "#endif\r\n"
     "\0"
 END
@@ -74,24 +74,24 @@ IDI_ICON1               ICON                    "res\\flo.ico"
 IDD_TIME_DIALOG DIALOGEX 0, 0, 222, 114
 STYLE DS_SETFONT | DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_STATICEDGE | WS_EX_APPWINDOW
-CAPTION " ±º‰◊™ªªπ§æﬂ"
-FONT 9, "ÀŒÃÂ", 0, 0, 0x1
+CAPTION "Êó∂Èó¥ËΩ¨Êç¢Â∑•ÂÖ∑"
+FONT 9, "ÂÆã‰Ωì", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_INPUT,9,29,165,26,ES_AUTOHSCROLL
-    PUSHBUTTON      "÷√∂•",IDC_TOP,175,29,40,14
+    PUSHBUTTON      "ÁΩÆÈ°∂",IDC_TOP,175,29,40,14
     EDITTEXT        IDC_EDIT_OUTPUT,9,81,147,19,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
-    LTEXT           " ±º‰¥¡£∫",IDC_STATIC,9,12,33,8
-    LTEXT           "∏Ò ΩªØ ±º‰£∫",IDC_STATIC,8,66,49,8
-    PUSHBUTTON      "∏¥÷∆",IDC_COPYINPUT,137,7,32,14
-    PUSHBUTTON      "∏¥÷∆",IDC_COPYOUTPUT,135,63,33,14
+    LTEXT           "Êó∂Èó¥Êà≥Ôºö",IDC_STATIC,9,12,33,8
+    LTEXT           "Ê†ºÂºèÂåñÊó∂Èó¥Ôºö",IDC_STATIC,8,66,49,8
+    PUSHBUTTON      "Â§çÂà∂",IDC_COPYINPUT,137,7,32,14
+    PUSHBUTTON      "Â§çÂà∂",IDC_COPYOUTPUT,135,63,33,14
     EDITTEXT        IDC_EDIT_COPYINPUT_INFO,175,9,23,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE | NOT WS_BORDER
-    PUSHBUTTON      "’≥Ã˘",IDC_PASTE_INPUT,52,7,39,14
-    PUSHBUTTON      "’≥Ã˘",IDC_PASTE_OUTPUT,53,63,40,14
+    PUSHBUTTON      "Á≤òË¥¥",IDC_PASTE_INPUT,52,7,39,14
+    PUSHBUTTON      "Á≤òË¥¥",IDC_PASTE_OUTPUT,53,63,40,14
     EDITTEXT        IDC_EDIT_COPYOUTPUT_INFO,173,65,23,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_VISIBLE | NOT WS_BORDER
-    PUSHBUTTON      "«Âø’",IDC_BUTTON_CLEAN_INPUT,100,7,32,14
-    PUSHBUTTON      "«Âø’",IDC_BUTTON_CLEAN_OUTPUT,100,63,30,14
+    PUSHBUTTON      "Ê∏ÖÁ©∫",IDC_BUTTON_CLEAN_INPUT,100,7,32,14
+    PUSHBUTTON      "Ê∏ÖÁ©∫",IDC_BUTTON_CLEAN_OUTPUT,100,63,30,14
     EDITTEXT        IDC_EDIT_SECOND_INFO,176,47,16,12,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    PUSHBUTTON      "Ωÿ»°",IDC_CUT,191,45,24,14
+    PUSHBUTTON      "Êà™Âèñ",IDC_CUT,191,45,24,14
     CONTROL         "UTC",IDC_RADIO_UTC,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,159,86,22,10
     CONTROL         "CST",IDC_RADIO_CST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,189,86,26,10
 END
@@ -120,11 +120,11 @@ BEGIN
         BLOCK "080403a8"
         BEGIN
             VALUE "CompanyName", "Sunell"
-            VALUE "FileDescription", " ±º‰◊™ªªπ§æﬂ"
+            VALUE "FileDescription", "Êó∂Èó¥ËΩ¨Êç¢Â∑•ÂÖ∑"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", " ±º‰◊™ªª.exe"
+            VALUE "InternalName", "Êó∂Èó¥ËΩ¨Êç¢.exe"
             VALUE "LegalCopyright", "Sunell"
-            VALUE "OriginalFilename", " ±º‰◊™ªª.exe"
+            VALUE "OriginalFilename", "Êó∂Èó¥ËΩ¨Êç¢.exe"
             VALUE "ProductName", "Sunell"
             VALUE "ProductVersion", "1.0.0.1"
         END
@@ -154,7 +154,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // ÷–Œƒ(÷–ª™»À√Òπ≤∫Õπ˙) resources
+#endif    // ‰∏≠Êñá(‰∏≠Âçé‰∫∫Ê∞ëÂÖ±ÂíåÂõΩ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -172,8 +172,8 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
 #pragma code_page(936)
-#include "res\time.rc2"  // ??°ß°ß? Microsoft Visual C++ ??°Ï?®®??®¨?°ß°ß?-|?°Ï????°Ï?®¶??®¨o???
-#include "afxres.rc"     // ??°Ï?®®??®¨o??°Ï?®¶???°Ï?®¶??®¨|?t
+#include "res\time.rc2"  // ??¬®¬®? Microsoft Visual C++ ??¬ß?√®??√¨?¬®¬®?-|?¬ß????¬ß?√©??√¨o???
+#include "afxres.rc"     // ??¬ß?√®??√¨o??¬ß?√©???¬ß?√©??√¨|?t
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

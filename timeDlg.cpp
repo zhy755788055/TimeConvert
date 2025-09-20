@@ -1,4 +1,4 @@
-// timeDlg.cpp : ÊµÏÖÎÄ¼ş
+// timeDlg.cpp : å®ç°æ–‡ä»¶
 //
 #include "stdafx.h"
 #include "time.h"
@@ -8,7 +8,7 @@
 #define new DEBUG_NEW
 #endif
 
-// CtimeDlg ¶Ô»°¿ò
+// CtimeDlg å¯¹è¯æ¡†
 
 CtimeDlg::CtimeDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CtimeDlg::IDD, pParent)
@@ -51,31 +51,31 @@ BEGIN_MESSAGE_MAP(CtimeDlg, CDialog)
 	ON_BN_CLICKED(IDC_RADIO_CST, &CtimeDlg::OnBnClickedRadioCST)
 END_MESSAGE_MAP()
 
-// CtimeDlg ÏûÏ¢´¦Àí³ÌĞò
+// CtimeDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 BOOL CtimeDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// ÉèÖÃ´Ë¶Ô»°¿òµÄÍ¼±ê¡£µ±Ó¦ÓÃ³ÌĞòÖ÷´°¿Ú²»ÊÇ¶Ô»°¿òÊ±£¬¿ò¼Ü½«×Ô¶¯
-	//  Ö´ĞĞ´Ë²Ù×÷
-	SetIcon(m_hIcon, TRUE);			// ÉèÖÃ´óÍ¼±ê
-	SetIcon(m_hIcon, FALSE);		// ÉèÖÃĞ¡Í¼±ê
+	// è®¾ç½®æ­¤å¯¹è¯æ¡†çš„å›¾æ ‡ã€‚å½“åº”ç”¨ç¨‹åºä¸»çª—å£ä¸æ˜¯å¯¹è¯æ¡†æ—¶ï¼Œæ¡†æ¶å°†è‡ªåŠ¨
+	//  æ‰§è¡Œæ­¤æ“ä½œ
+	SetIcon(m_hIcon, TRUE);			// è®¾ç½®å¤§å›¾æ ‡
+	SetIcon(m_hIcon, FALSE);		// è®¾ç½®å°å›¾æ ‡
 
-	// TODO: ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ é¢å¤–çš„åˆå§‹åŒ–ä»£ç 
 	
 	m_FontInput.DeleteObject();
-	m_FontInput.CreatePointFont(220, _T("ĞÂËÎÌå"));
+	m_FontInput.CreatePointFont(220, _T("æ–°å®‹ä½“"));
 	m_objEditInput.SetFont(&m_FontInput);
 
 	m_FontOutput.DeleteObject();
-	m_FontOutput.CreatePointFont(156, _T("ĞÂËÎÌå"));
+	m_FontOutput.CreatePointFont(156, _T("æ–°å®‹ä½“"));
 	m_objEditOutput.SetFont(&m_FontOutput);
 
-	m_objEditCopyInputInfo.SetWindowText(_T("ÒÑ¸´ÖÆ"));
-	m_objEditCopyOutputInfo.SetWindowText(_T("ÒÑ¸´ÖÆ"));
-	m_objCEdit_Second_Info.SetWindowText(_T("Ãë"));
-	m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+	m_objEditCopyInputInfo.SetWindowText(_T("å·²å¤åˆ¶"));
+	m_objEditCopyOutputInfo.SetWindowText(_T("å·²å¤åˆ¶"));
+	m_objCEdit_Second_Info.SetWindowText(_T("ç§’"));
+	m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 
 	CButton* objRadio=(CButton*)GetDlgItem(IDC_RADIO_CST);
 	objRadio->SetCheck(1);
@@ -88,22 +88,21 @@ BOOL CtimeDlg::OnInitDialog()
 	m_objEditInput.SetWindowText(timeStamp);
 	ChangeInputTime();
 
-	return TRUE;  // ³ı·Ç½«½¹µãÉèÖÃµ½¿Ø¼ş£¬·ñÔò·µ»Ø TRUE
+	return TRUE;  // é™¤éå°†ç„¦ç‚¹è®¾ç½®åˆ°æ§ä»¶ï¼Œå¦åˆ™è¿”å› TRUE
 }
 
-// Èç¹ûÏò¶Ô»°¿òÌí¼Ó×îĞ¡»¯°´Å¥£¬ÔòĞèÒªÏÂÃæµÄ´úÂë
-//  À´»æÖÆ¸ÃÍ¼±ê¡£¶ÔÓÚÊ¹ÓÃÎÄµµ/ÊÓÍ¼Ä£ĞÍµÄ MFC Ó¦ÓÃ³ÌĞò£¬
-//  Õâ½«ÓÉ¿ò¼Ü×Ô¶¯Íê³É¡£
-
+// å¦‚æœå‘å¯¹è¯æ¡†æ·»åŠ æœ€å°åŒ–æŒ‰é’®ï¼Œåˆ™éœ€è¦ä¸‹é¢çš„ä»£ç 
+//  æ¥ç»˜åˆ¶è¯¥å›¾æ ‡ã€‚å¯¹äºä½¿ç”¨æ–‡æ¡£/è§†å›¾æ¨¡å‹çš„ MFC åº”ç”¨ç¨‹åºï¼Œ
+//  è¿™å°†ç”±æ¡†æ¶è‡ªåŠ¨å®Œæˆã€‚
 void CtimeDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // ÓÃÓÚ»æÖÆµÄÉè±¸ÉÏÏÂÎÄ
+		CPaintDC dc(this); // ç”¨äºç»˜åˆ¶çš„è®¾å¤‡ä¸Šä¸‹æ–‡
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Ê¹Í¼±êÔÚ¹¤×÷¾ØĞÎÖĞ¾ÓÖĞ
+		// ä½¿å›¾æ ‡åœ¨å·¥ä½œçŸ©å½¢ä¸­å±…ä¸­
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -111,7 +110,7 @@ void CtimeDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// »æÖÆÍ¼±ê
+		// ç»˜åˆ¶å›¾æ ‡
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -120,7 +119,7 @@ void CtimeDlg::OnPaint()
 	}
 }
 
-//µ±ÓÃ»§ÍÏ¶¯×îĞ¡»¯´°¿ÚÊ±ÏµÍ³µ÷ÓÃ´Ëº¯ÊıÈ¡µÃ¹â±êÏÔÊ¾¡£
+//å½“ç”¨æˆ·æ‹–åŠ¨æœ€å°åŒ–çª—å£æ—¶ç³»ç»Ÿè°ƒç”¨æ­¤å‡½æ•°å–å¾—å…‰æ ‡æ˜¾ç¤ºã€‚
 //
 HCURSOR CtimeDlg::OnQueryDragIcon()
 {
@@ -153,14 +152,14 @@ void CtimeDlg::ChangeInputTime()
 
 	if (strInput.IsEmpty())
 	{
-		//MessageBox(_T("²»ÄÜÎª¿Õ£¡"));
+		//MessageBox(_T("ä¸èƒ½ä¸ºç©ºï¼"));
 		m_objEditOutput.SetWindowText(strOutput);
 		return;
 	}
 
 	if (strInput.SpanIncluding(_T("-0123456789")) != strInput)
 	{
-		//MessageBox(_T("·Ç·¨·ûºÅ£¡"));
+		//MessageBox(_T("éæ³•ç¬¦å·ï¼"));
 		m_objEditOutput.SetWindowText(strOutput);
 		return;
 	}
@@ -168,11 +167,11 @@ void CtimeDlg::ChangeInputTime()
 	if (strInput.GetLength() > 10)
 	{
 		strInput = strInput.Left(10);
-		m_objCEdit_Second_Info.SetWindowText(_T("Î¢Ãë"));
+		m_objCEdit_Second_Info.SetWindowText(_T("å¾®ç§’"));
 	}
 	else
 	{
-		m_objCEdit_Second_Info.SetWindowText(_T("Ãë"));
+		m_objCEdit_Second_Info.SetWindowText(_T("ç§’"));
 	}
 
 	m_nUTCTime = _ttoi(strInput);
@@ -211,14 +210,14 @@ void CtimeDlg::ChangeOutputTime()
 
 	if (strOutput.IsEmpty())
 	{
-		//MessageBox(_T("²»ÄÜÎª¿Õ£¡"));
+		//MessageBox(_T("ä¸èƒ½ä¸ºç©ºï¼"));
 		m_objEditInput.SetWindowText(strInput);
 		return;
 	}
 
 	if (strOutput.SpanIncluding(_T(": -0123456789")) != strOutput)
 	{
-		//MessageBox(_T("·Ç·¨·ûºÅ£¡"));
+		//MessageBox(_T("éæ³•ç¬¦å·ï¼"));
 		m_objEditInput.SetWindowText(strInput);
 		return;
 	}
@@ -234,7 +233,7 @@ void CtimeDlg::ChangeOutputTime()
 		return;
 	}
 
-	//Ğ£ÑéºÏ·¨ĞÔ
+	//æ ¡éªŒåˆæ³•æ€§
 	if (nYear < 1900 || nYear > 2100)
 	{
 		m_objEditInput.SetWindowText(strInput);
@@ -278,7 +277,7 @@ void CtimeDlg::ChangeOutputTime()
 
 	strInput.Format(_T("%ld"), m_nUTCTime);
 	m_objEditInput.SetWindowText(strInput);
-	m_objCEdit_Second_Info.SetWindowText(_T("Ãë"));
+	m_objCEdit_Second_Info.SetWindowText(_T("ç§’"));
 
 	CEdit *pobjEditCopyInputInfo = (CEdit*)GetDlgItem(IDC_EDIT_COPYINPUT_INFO);
 	pobjEditCopyInputInfo->ShowWindow(FALSE);
@@ -304,13 +303,13 @@ void CtimeDlg::OnBnClickedTop()
 	{
 		SetWindowPos(&wndNoTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		m_bTop = false;
-		m_objButtonTop.SetWindowText(_T("ÖÃ¶¥"));
+		m_objButtonTop.SetWindowText(_T("ç½®é¡¶"));
 	}
 	else
 	{
 		SetWindowPos(&wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		m_bTop = true;
-		m_objButtonTop.SetWindowText(_T("È¡ÏûÖÃ¶¥"));
+		m_objButtonTop.SetWindowText(_T("å–æ¶ˆç½®é¡¶"));
 	}
 }
 unsigned long CtimeDlg::mktime(const unsigned int year0, const unsigned int mon0,
@@ -393,7 +392,7 @@ void CtimeDlg::OnBnClickedPasteInput()
 {
 	m_strBeforeCuted = "";
 	m_bIsCuted = false;
-	m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+	m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 	
 	m_nCleaned = false;
 
@@ -409,7 +408,7 @@ void CtimeDlg::OnBnClickedPasteOutput()
 {
 	m_strBeforeCuted = "";
 	m_bIsCuted = false;
-	m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+	m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 
 	m_nCleaned = false;
 
@@ -427,7 +426,7 @@ void CtimeDlg::OnBnClickedButtonCleanInput()
 	m_objEditOutput.SetWindowText(_T(""));
 	m_strBeforeCuted = "";
 	m_bIsCuted = false;
-	m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+	m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 	m_nUTCTime = 0;
 	m_nCleaned = true;
 }
@@ -438,7 +437,7 @@ void CtimeDlg::OnBnClickedButtonCleanOutput()
 	m_objEditOutput.SetWindowText(_T(""));
 	m_strBeforeCuted = "";
 	m_bIsCuted = false;
-	m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+	m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 	m_nUTCTime = 0;
 	m_nCleaned = true;
 }
@@ -458,25 +457,25 @@ void CtimeDlg::OnBnClickedCut()
 	if (m_bIsCuted)
 	{
 		m_bIsCuted = false;
-		m_objCButtonCut.SetWindowText(_T("½ØÈ¡"));
+		m_objCButtonCut.SetWindowText(_T("æˆªå–"));
 
 		if (m_strBeforeCuted.GetLength() > 10)
 		{
 			m_objEditInput.SetWindowText(m_strBeforeCuted);
-			m_objCEdit_Second_Info.SetWindowText(_T("Î¢Ãë"));
+			m_objCEdit_Second_Info.SetWindowText(_T("å¾®ç§’"));
 			OnEnChangeInput();
 		}
 	}
 	else
 	{
 		m_bIsCuted = true;
-		m_objCButtonCut.SetWindowText(_T("»¹Ô­"));
+		m_objCButtonCut.SetWindowText(_T("è¿˜åŸ"));
 		m_objEditInput.GetWindowText(m_strBeforeCuted);
 		if (m_strBeforeCuted.GetLength() > 10)
 		{
 			CString strCuted = m_strBeforeCuted.Left(10);
 			m_objEditInput.SetWindowText(strCuted);
-			m_objCEdit_Second_Info.SetWindowText(_T("Î¢Ãë"));
+			m_objCEdit_Second_Info.SetWindowText(_T("å¾®ç§’"));
 			OnEnChangeInput();
 		}
 	}
