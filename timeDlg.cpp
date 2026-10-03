@@ -8,6 +8,18 @@
 #define new DEBUG_NEW
 #endif
 
+// 查询标题栏各按钮位置（自命名，避免与 SDK 头文件冲突）
+#ifndef WM_GETTITLEBARINFOEX_DEF
+#define WM_GETTITLEBARINFOEX_DEF 0x033F
+#endif
+struct TITLEBARINFOEX_DEF
+{
+	DWORD cbSize;
+	RECT  rcTitleBar;
+	DWORD rgstate[6];
+	RECT  rgrect[6];	// [0]标题栏 [1]保留 [2]最小化 [3]最大化 [4]关闭 [5]保留
+};
+
 // CtimeDlg 对话框
 
 CtimeDlg::CtimeDlg(CWnd* pParent /*=NULL*/)
@@ -27,7 +39,6 @@ void CtimeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_OUTPUT, m_objEditOutput);
 	DDX_Control(pDX, IDC_EDIT_COPYINPUT_INFO, m_objEditCopyInputInfo);
 	DDX_Control(pDX, IDC_EDIT_COPYOUTPUT_INFO, m_objEditCopyOutputInfo);
-	DDX_Control(pDX, IDC_TOP, m_objButtonTop);
 	DDX_Control(pDX, IDC_EDIT_SECOND_INFO, m_objCEdit_Second_Info);
 	DDX_Control(pDX, IDC_CUT, m_objCButtonCut);
 }
@@ -36,7 +47,7 @@ BEGIN_MESSAGE_MAP(CtimeDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
-	ON_BN_CLICKED(IDC_TOP, &CtimeDlg::OnBnClickedTop)
+	ON_BN_CLICKED(IDC_CURRENT, &CtimeDlg::OnBnClickedCurrent)
 	ON_EN_CHANGE(IDC_EDIT_INPUT, &CtimeDlg::OnEnChangeInput)
 	ON_EN_CHANGE(IDC_EDIT_OUTPUT, &CtimeDlg::OnEnChangeOutput)
 	ON_BN_CLICKED(IDC_COPYINPUT, &CtimeDlg::OnBnClickedCopyinput)
@@ -49,6 +60,9 @@ BEGIN_MESSAGE_MAP(CtimeDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_BN_CLICKED(IDC_RADIO_UTC, &CtimeDlg::OnBnClickedRadioUTC)
 	ON_BN_CLICKED(IDC_RADIO_CST, &CtimeDlg::OnBnClickedRadioCST)
+	ON_WM_DESTROY()
+	ON_WM_WINDOWPOSCHANGED()
+	ON_MESSAGE(WM_PIN_TOGGLE, &CtimeDlg::OnPinToggle)
 END_MESSAGE_MAP()
 
 // CtimeDlg 消息处理程序
@@ -87,6 +101,9 @@ BOOL CtimeDlg::OnInitDialog()
 	timeStamp.Format(_T("%lld"), tm.GetTime());
 	m_objEditInput.SetWindowText(timeStamp);
 	ChangeInputTime();
+
+	// 创建标题栏上的图钉覆盖层（位置在对话框显示/移动时同步）
+	m_pinButton.Create(this);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -297,20 +314,322 @@ void CtimeDlg::OnEnChangeOutput()
 	ChangeOutputTime();
 }
 
-void CtimeDlg::OnBnClickedTop()
+// 点击“当前”按钮：把系统当前时间戳填入输入框
+void CtimeDlg::OnBnClickedCurrent()
 {
-	if(m_bTop)
+	m_strBeforeCuted = "";
+	m_bIsCuted = false;
+	m_objCButtonCut.SetWindowText(_T("截取"));
+	m_nCleaned = false;
+
+	CTime tm = CTime::GetCurrentTime();
+	CString timeStamp;
+	timeStamp.Format(_T("%lld"), tm.GetTime());
+	m_objEditInput.SetWindowText(timeStamp);
+	ChangeInputTime();
+}
+
+// 切换窗口置顶状态
+void CtimeDlg::ToggleTopMost()
+{
+	if (m_bTop)
 	{
 		SetWindowPos(&wndNoTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		m_bTop = false;
-		m_objButtonTop.SetWindowText(_T("置顶"));
 	}
 	else
 	{
 		SetWindowPos(&wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		m_bTop = true;
-		m_objButtonTop.SetWindowText(_T("取消置顶"));
 	}
+	UpdatePinOverlay();
+}
+
+// 计算图钉按钮矩形（窗口坐标）：紧挨在系统“最小化”按钮左侧
+CRect CtimeDlg::GetPinButtonRect()
+{
+	CRect rcWnd;
+	GetWindowRect(&rcWnd);
+
+	// 通过 WM_GETTITLEBARINFOEX 取得系统标题栏各按钮的精确位置
+	TITLEBARINFOEX_DEF tbi;
+	ZeroMemory(&tbi, sizeof(tbi));
+	tbi.cbSize = sizeof(tbi);
+	::SendMessage(m_hWnd, WM_GETTITLEBARINFOEX_DEF, 0, (LPARAM)&tbi);
+
+	CRect rcMin(tbi.rgrect[2]);	// rgrect[2] 为最小化按钮（屏幕坐标）
+	bool bValid = !rcMin.IsRectEmpty()
+		&& rcMin.left >= rcWnd.left && rcMin.right <= rcWnd.right
+		&& rcMin.top >= rcWnd.top && rcMin.bottom <= rcWnd.bottom;
+
+	if (!bValid)
+	{
+		// 兜底：按系统度量从右往左推算（关闭、最大化、最小化）
+		int nBtnW = GetSystemMetrics(SM_CXSIZE);
+		int nBtnH = GetSystemMetrics(SM_CYSIZE);
+		int nBorder = GetSystemMetrics(SM_CXDLGFRAME);
+		int nRight = rcWnd.left + rcWnd.Width() - nBorder;
+		int nTop = rcWnd.top + GetSystemMetrics(SM_CYDLGFRAME)
+			+ (GetSystemMetrics(SM_CYCAPTION) - nBtnH) / 2;
+		rcMin.SetRect(nRight - 3 * nBtnW, nTop, nRight - 2 * nBtnW, nTop + nBtnH);
+	}
+
+	rcMin.OffsetRect(-rcWnd.left, -rcWnd.top);
+
+	CRect rcPin(rcMin.left - rcMin.Width(), rcMin.top, rcMin.left, rcMin.bottom);
+	return rcPin;
+}
+
+// 把图钉覆盖层移动到系统“最小化”按钮左边
+void CtimeDlg::UpdatePinOverlay()
+{
+	if (m_pinButton.GetSafeHwnd() == NULL)
+	{
+		return;
+	}
+
+	if (!IsWindowVisible() || IsIconic())
+	{
+		m_pinButton.ShowWindow(SW_HIDE);
+		return;
+	}
+
+	CRect rcPin = GetPinButtonRect();	// 窗口坐标
+	CRect rcWnd;
+	GetWindowRect(&rcWnd);
+
+	m_pinButton.SetPinned(m_bTop ? TRUE : FALSE);
+	m_pinButton.SetWindowPos(NULL, rcWnd.left + rcPin.left, rcWnd.top + rcPin.top,
+		rcPin.Width(), rcPin.Height(),
+		SWP_NOACTIVATE | SWP_NOZORDER | SWP_SHOWWINDOW);
+}
+
+void CtimeDlg::OnDestroy()
+{
+	if (m_pinButton.GetSafeHwnd() != NULL)
+	{
+		m_pinButton.DestroyWindow();
+	}
+	CDialog::OnDestroy();
+}
+
+void CtimeDlg::OnWindowPosChanged(WINDOWPOS* lpwndpos)
+{
+	CDialog::OnWindowPosChanged(lpwndpos);
+	UpdatePinOverlay();
+}
+
+LRESULT CtimeDlg::OnPinToggle(WPARAM wParam, LPARAM lParam)
+{
+	ToggleTopMost();
+	return 0;
+}
+
+// ==================== 图钉覆盖层窗口 ====================
+
+BEGIN_MESSAGE_MAP(CPinButtonWnd, CWnd)
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSELEAVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_SETCURSOR()
+	ON_WM_WINDOWPOSCHANGED()
+END_MESSAGE_MAP()
+
+CPinButtonWnd::CPinButtonWnd()
+	: m_bHover(FALSE)
+	, m_bPinned(FALSE)
+	, m_bPressed(FALSE)
+{
+}
+
+BOOL CPinButtonWnd::Create(CWnd* pOwner)
+{
+	LPCTSTR lpszClass = AfxRegisterWndClass(0, ::LoadCursor(NULL, IDC_HAND), NULL, NULL);
+	return CreateEx(WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+		lpszClass, _T("PinButton"), WS_POPUP, 0, 0, 16, 16,
+		pOwner->GetSafeHwnd(), NULL);
+}
+
+void CPinButtonWnd::SetPinned(BOOL bPinned)
+{
+	if (m_bPinned != bPinned)
+	{
+		m_bPinned = bPinned;
+		Render();
+	}
+}
+
+void CPinButtonWnd::SetHover(BOOL bHover)
+{
+	if (m_bHover != bHover)
+	{
+		m_bHover = bHover;
+		Render();
+	}
+}
+
+// 用 GDI 把字形画到 32 位 DIB 上，再按灰度生成带透明通道的图层
+void CPinButtonWnd::Render()
+{
+	if (m_hWnd == NULL)
+	{
+		return;
+	}
+
+	CRect rc;
+	GetWindowRect(&rc);
+	int nW = rc.Width();
+	int nH = rc.Height();
+	if (nW <= 0 || nH <= 0)
+	{
+		return;
+	}
+
+	BITMAPINFO bmi;
+	ZeroMemory(&bmi, sizeof(bmi));
+	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmi.bmiHeader.biWidth = nW;
+	bmi.bmiHeader.biHeight = -nH;	// 负值表示自上而下
+	bmi.bmiHeader.biPlanes = 1;
+	bmi.bmiHeader.biBitCount = 32;
+	bmi.bmiHeader.biCompression = BI_RGB;
+
+	HDC hdcScreen = ::GetDC(NULL);
+	HDC hdcMem = ::CreateCompatibleDC(hdcScreen);
+
+	void* pBits = NULL;
+	HBITMAP hBmp = ::CreateDIBSection(hdcScreen, &bmi, DIB_RGB_COLORS, &pBits, NULL, 0);
+	HGDIOBJ hOldBmp = ::SelectObject(hdcMem, hBmp);
+	::ZeroMemory(pBits, (size_t)nW * nH * 4);
+
+	// 先用白色画出图钉字形，像素灰度值即为覆盖度
+	int nFontH = nH * 55 / 100;
+	if (nFontH < 8)
+	{
+		nFontH = 8;
+	}
+	CFont font;
+	font.CreateFont(-nFontH, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+		ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Segoe MDL2 Assets"));
+
+	// 未置顶用“图钉”，已置顶用“取消图钉”
+	CString strGlyph;
+	strGlyph = (wchar_t)(m_bPinned ? 0xE77A : 0xE840);
+
+	HGDIOBJ hOldFont = ::SelectObject(hdcMem, (HFONT)font.GetSafeHandle());
+	::SetBkMode(hdcMem, TRANSPARENT);
+	::SetTextColor(hdcMem, RGB(255, 255, 255));
+	RECT rcText = { 0, 0, nW, nH };
+	::DrawText(hdcMem, strGlyph, -1, &rcText, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	::SelectObject(hdcMem, hOldFont);
+
+	// 悬停或已置顶时用主题蓝，否则跟随系统标题栏文字颜色
+	COLORREF crGlyph = (m_bHover || m_bPinned || m_bPressed)
+		? RGB(0, 120, 215)
+		: ::GetSysColor(COLOR_CAPTIONTEXT);
+	int nR = GetRValue(crGlyph);
+	int nG = GetGValue(crGlyph);
+	int nB = GetBValue(crGlyph);
+
+	BYTE* p = (BYTE*)pBits;
+	int nCount = nW * nH;
+	for (int i = 0; i < nCount; ++i, p += 4)
+	{
+		int nCover = p[0];	// 覆盖度（灰度）
+		if (nCover > 0)
+		{
+			p[0] = (BYTE)(nB * nCover / 255);	// B（预乘 alpha）
+			p[1] = (BYTE)(nG * nCover / 255);	// G
+			p[2] = (BYTE)(nR * nCover / 255);	// R
+			p[3] = (BYTE)nCover;				// A
+		}
+		else
+		{
+			// alpha 置 1：整块按钮区域都能响应鼠标（alpha 为 0 会被系统穿透）
+			p[3] = 1;
+		}
+	}
+
+	POINT ptDst = { rc.left, rc.top };
+	SIZE sizeWnd = { nW, nH };
+	POINT ptSrc = { 0, 0 };
+	BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+	::UpdateLayeredWindow(m_hWnd, hdcScreen, &ptDst, &sizeWnd, hdcMem, &ptSrc, 0, &bf, ULW_ALPHA);
+
+	::SelectObject(hdcMem, hOldBmp);
+	::DeleteObject(hBmp);
+	::DeleteDC(hdcMem);
+	::ReleaseDC(NULL, hdcScreen);
+}
+
+void CPinButtonWnd::OnMouseMove(UINT nFlags, CPoint point)
+{
+	SetHover(TRUE);
+
+	TRACKMOUSEEVENT tme;
+	ZeroMemory(&tme, sizeof(tme));
+	tme.cbSize = sizeof(tme);
+	tme.dwFlags = TME_LEAVE;
+	tme.hwndTrack = m_hWnd;
+	::TrackMouseEvent(&tme);
+
+	CWnd::OnMouseMove(nFlags, point);
+}
+
+void CPinButtonWnd::OnMouseLeave()
+{
+	SetHover(FALSE);
+}
+
+void CPinButtonWnd::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_bPressed = TRUE;
+	SetCapture();
+	Render();
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+void CPinButtonWnd::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if (m_bPressed)
+	{
+		m_bPressed = FALSE;
+		if (GetCapture() == this)
+		{
+			ReleaseCapture();
+		}
+
+		CRect rc;
+		GetClientRect(&rc);
+		if (rc.PtInRect(point))
+		{
+			CWnd* pOwner = GetOwner();
+			if (pOwner != NULL)
+			{
+				pOwner->PostMessage(WM_PIN_TOGGLE);
+			}
+		}
+		else
+		{
+			Render();
+		}
+		return;
+	}
+	CWnd::OnLButtonUp(nFlags, point);
+}
+
+BOOL CPinButtonWnd::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
+{
+	::SetCursor(::LoadCursor(NULL, IDC_HAND));
+	return TRUE;
+}
+
+void CPinButtonWnd::OnWindowPosChanged(WINDOWPOS* lpwndpos)
+{
+	CWnd::OnWindowPosChanged(lpwndpos);
+	Render();
 }
 unsigned long CtimeDlg::mktime(const unsigned int year0, const unsigned int mon0,
 							   const unsigned int day,   const unsigned int hour,

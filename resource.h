@@ -5,7 +5,7 @@
 #define IDD_TIME_DIALOG                 102
 #define IDI_ICON1                       130
 #define IDC_EDIT_INPUT                  1000
-#define IDC_TOP                         1001
+#define IDC_CURRENT                     1001
 #define IDC_EDIT_OUTPUT                 1002
 #define IDC_COPYINPUT                   1003
 #define IDC_COPYOUTPUT                  1004

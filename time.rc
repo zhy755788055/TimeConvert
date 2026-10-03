@@ -18,7 +18,7 @@
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
-#pragma code_page(936)
+#pragma code_page(65001)
 #endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
@@ -47,7 +47,7 @@ BEGIN
     "\r\n"
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
     "LANGUAGE 4, 2\r\n"
-    "#pragma code_page(936)\r\n"
+    "#pragma code_page(65001)\r\n"
     "#include ""res\\time.rc2""  // ???§?§? Microsoft Visual C++ ???ì?¨¨??¨???§?§?-|??ì?????ì?¨|??¨?o???\r\n"
     "#include ""afxres.rc""     // ???ì?¨¨??¨?o???ì?¨|????ì?¨|??¨?|?t\r\n"
     "#endif\r\n"
@@ -78,7 +78,7 @@ CAPTION "时间转换工具"
 FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_INPUT,9,29,165,26,ES_AUTOHSCROLL
-    PUSHBUTTON      "置顶",IDC_TOP,175,29,40,14
+    PUSHBUTTON      "当前",IDC_CURRENT,175,29,40,14
     EDITTEXT        IDC_EDIT_OUTPUT,9,81,147,19,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
     LTEXT           "时间戳：",IDC_STATIC,9,12,33,8
     LTEXT           "格式化时间：",IDC_STATIC,8,66,49,8
@@ -171,7 +171,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
-#pragma code_page(936)
+#pragma code_page(65001)
 #include "res\time.rc2"  // ??¨¨? Microsoft Visual C++ ??§?è??ì?¨¨?-|?§????§?é??ìo???
 #include "afxres.rc"     // ??§?è??ìo??§?é???§?é??ì|?t
 #endif
