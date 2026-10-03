@@ -3,6 +3,7 @@ name: MSBuild
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -11,8 +12,6 @@ env:
   SOLUTION_FILE_PATH: .
 
   # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
 permissions:
@@ -20,7 +19,9 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    # 工程使用 PlatformToolset=v143 + MFC，固定在带 VS2022 的镜像上构建。
+    # windows-latest 已迁移到 VS2026（v145），既没有 v143 工具集也没有 MFC 库。
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v3
@@ -28,17 +29,105 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
+    # GitHub 托管的 Windows 镜像默认不安装 ATL/MFC，缺少时会报
+    # MSB8041: MFC libraries are required for this project.
+    - name: Install MFC/ATL libraries
+      shell: pwsh
+      run: |
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsPath = & $vswhere -latest -products * -version "[17.0,18.0)" `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        if (-not $vsPath) { throw "未找到 Visual Studio 2022 实例（缺少 v143 工具集）" }
+        Write-Host "Visual Studio: $vsPath"
+
+        $hasMfc = & $vswhere -latest -products * -version "[17.0,18.0)" `
+          -requires Microsoft.VisualStudio.Component.VC.ATLMFC -property installationPath
+        if (-not $hasMfc) {
+          Write-Host "正在安装 Microsoft.VisualStudio.Component.VC.ATLMFC ..."
+          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+          $installerArgs = @(
+            'modify',
+            '--installPath', "`"$vsPath`"",
+            '--add', 'Microsoft.VisualStudio.Component.VC.ATLMFC',
+            '--quiet', '--norestart'
+          )
+          Start-Process -FilePath $installer -ArgumentList $installerArgs -Wait
+          # vs_installer 只是引导程序，真正干活的是子进程，继续等它结束
+          while (Get-Process -Name vs_installershell,vs_installer -ErrorAction SilentlyContinue) {
+            Start-Sleep -Seconds 5
+          }
+        }
+
+        $check = & $vswhere -latest -products * -version "[17.0,18.0)" `
+          -requires Microsoft.VisualStudio.Component.VC.ATLMFC -property installationPath
+        if (-not $check) { throw "MFC/ATL 组件安装失败，构建仍会报 MSB8041" }
+        Write-Host "MFC/ATL 已就绪: $check"
+
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
-    
+
+    # 工程用的是动态 MFC + 动态 CRT，exe 依赖 mfc140u.dll / MSVCP140.dll /
+    # VCRUNTIME140.dll。这三个不是系统自带，必须和 exe 放在一起才能在干净机器上运行。
+    - name: Stage artifacts (exe + runtime DLLs)
+      shell: pwsh
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        $out = "artifact"
+        New-Item -ItemType Directory -Force -Path $out | Out-Null
+        Copy-Item "Release\TimeConvertTool.exe" $out -Force
+
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsPath = & $vswhere -latest -products * -version "[17.0,18.0)" -property installationPath
+        if (-not $vsPath) { throw "未找到 Visual Studio 2022 实例" }
+
+        # VC\Redist\MSVC 下除了 14.x 版本目录，还有一个 v143 别名目录，
+        # 直接取名字最大的会取错，所以按“目录里真的有 mfc140u.dll”来筛。
+        $redistRoot = Get-ChildItem "$vsPath\VC\Redist\MSVC" -Directory |
+          Where-Object { Test-Path (Join-Path $_.FullName 'x86\Microsoft.VC143.MFC\mfc140u.dll') } |
+          Sort-Object Name -Descending | Select-Object -First 1
+        if (-not $redistRoot) { throw "未找到 x86 运行时目录（VC\Redist\MSVC\*\x86\Microsoft.VC143.MFC）" }
+        $x86 = Join-Path $redistRoot.FullName 'x86'
+
+        $dlls = @(
+          'Microsoft.VC143.MFC\mfc140u.dll',
+          'Microsoft.VC143.CRT\msvcp140.dll',
+          'Microsoft.VC143.CRT\vcruntime140.dll'
+        )
+        foreach ($dll in $dlls) {
+          $src = Join-Path $x86 $dll
+          if (-not (Test-Path $src)) { throw "缺少运行时库: $src" }
+          Copy-Item $src $out -Force
+        }
+
+        Get-ChildItem $out | Select-Object Name, Length
+
     - uses: actions/upload-artifact@v4
       with:
         name: TimeConvertTool
-        path: ${{env.SOLUTION_FILE_PATH}}/Release/TimeConvertTool.exe
+        path: artifact
+        # 产物缺失时直接失败，避免 job 变绿却没有可下载文件
+        if-no-files-found: error
+
+  # 打 v* 标签时，把 exe 和运行时 DLL 作为附件发到 Release，
+  # 这样在网页上不用登录、不用解压就能直接下载。
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: TimeConvertTool
+        path: dist
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --generate-notes
